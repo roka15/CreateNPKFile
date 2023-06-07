@@ -365,10 +365,11 @@ namespace roka::file
 	MYDLL_DECLSPEC FileInfo* roka::file::NPKSystem::CreateCSVLineBuffer()
 	{
 		string temp = mCSVBuffers->buffer;
-		int linesize = temp.find("\n");
+		int start_index = mCsvLine;
+		int linesize = temp.find("\n", start_index);
 		std::string base_buf = mCSVBuffers->buffer;
 		std::string get_data;
-		int start_index = mCsvLine;
+
 		int get_index = 0;
 		std::string file_name;
 		int int_data_cnt = 0;
@@ -428,7 +429,7 @@ namespace roka::file
 			memcpy(point, &data, sizeof(int));
 			point += sizeof(int);
 		}
-		mCsvLine += (linesize + 1);
+		mCsvLine = (linesize + 1);
 		return result;
 	}
 

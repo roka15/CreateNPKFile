@@ -84,7 +84,7 @@ int main()
 	std::map<std::string, roka::file::PackInfo*> packmap;
 	npk.ReadNPK("..\\NPKTestFile\\Result\\arsmagna.npk", csvmap, packmap);
 
-	npk.SavePacks("..\\NPKTestFile\\Result\\myTest", packmap);
+	//npk.SavePacks("..\\NPKTestFile\\Result\\myTest", packmap);
 	for (auto item : csvmap)
 	{
 		delete (item.second);

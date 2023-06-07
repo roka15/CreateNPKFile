@@ -221,56 +221,6 @@ namespace roka::file
 		return info;
 	}
 
-	MYDLL_DECLSPEC void NPKSystem::ReadImagePackage(std::string _path, std::map<std::string, CSVInfo*>& _csvmap, std::map<std::string, PackInfo*>& _packmap)
-	{
-		LoadFile(_path);
-
-		char* buf = GetLoadFile()->buffer;
-		char* point = (char*)buf;
-		char* filename = nullptr;
-		int filename_size;
-		int filesize = 0;
-		int image_cnt = 0;
-		memcpy(&filesize, point, sizeof(int));
-		point += sizeof(int);
-
-		std::string folder_name;
-		//csv 정보 읽기
-		size_t readsize = ReadCSVLine(point, _csvmap, folder_name);
-		point += readsize;
-
-		memcpy(&image_cnt, point, sizeof(int));
-		point += sizeof(int);
-		PackInfo* pack_info = new PackInfo();
-		for (int i = 0; i < image_cnt; i++)
-		{
-			FileInfo* info = new FileInfo();
-			memcpy(&filename_size, point, sizeof(int));
-			point += sizeof(int);
-			filename = new char[filename_size + 1];
-			filename[filename_size] = '\0';
-			memcpy(filename, point, filename_size);
-			point += filename_size;
-
-			int imagesize = 0;
-			char* image_buf = nullptr;
-			memcpy(&imagesize, point, sizeof(int));
-			point += sizeof(int);
-			image_buf = new char[imagesize];
-			memcpy(image_buf, point, imagesize);
-			point += imagesize;
-
-			info->length = imagesize;
-			info->buffer = image_buf;
-			info->name = filename;
-
-			pack_info->binbuf.push_back(info);
-		}
-
-		pack_info->name = folder_name;
-
-	}
-
 	MYDLL_DECLSPEC size_t NPKSystem::ReadImagePackage(const char* _buf, std::map<std::string, CSVInfo*>& _csvmap, std::map<std::string, PackInfo*>& _packmap)
 	{
 		const char* buf = _buf;
@@ -310,6 +260,8 @@ namespace roka::file
 			info->length = imagesize;
 			info->buffer = image_buf;
 			info->name = filename;
+
+			delete filename;
 
 			pack_info->binbuf.push_back(info);
 		}
@@ -376,7 +328,8 @@ namespace roka::file
 	{
 		//1. npk buf 읽어오기
 		LoadFile(_path);
-		char* npkbuf = GetLoadFile()->buffer;
+		FileInfo* file = GetLoadFile();
+		char* npkbuf = file->buffer;
 
 		char* point = npkbuf;
 
@@ -394,6 +347,7 @@ namespace roka::file
 		{
 			point += ReadImagePackage(point, _csvmap, _packmap);
 		}
+		delete file;
 
 	}
 
@@ -427,7 +381,7 @@ namespace roka::file
 		int_data_cnt = atoi(base_buf.substr(start_index, get_index - start_index).c_str());
 		start_index = get_index + 1;
 
-		int bufsize = ((int_data_cnt + 1) * 2) * sizeof(int) + file_name.length();
+		int bufsize = ((int_data_cnt + 1) * 4) * sizeof(int) + file_name.length();
 		char* buf = new char[bufsize];
 
 		char* point = buf;
@@ -449,7 +403,22 @@ namespace roka::file
 		memcpy(point, &int_data_cnt, sizeof(int));
 		point += sizeof(int);
 
-		for (int i = 0; i < (int_data_cnt) * 2; i++)
+		int base_size_x = 0;
+		int base_size_y = 0;
+
+		get_index = base_buf.find("'", start_index);
+		base_size_x = atoi(base_buf.substr(start_index, get_index - start_index).c_str());
+		start_index = get_index + 1;
+		memcpy(point, &base_size_x, sizeof(int));
+		point += sizeof(int);
+
+		get_index = base_buf.find("'", start_index);
+		base_size_y = atoi(base_buf.substr(start_index, get_index - start_index).c_str());
+		start_index = get_index + 1;
+		memcpy(point, &base_size_y, sizeof(int));
+		point += sizeof(int);
+
+		for (int i = 0; i < (int_data_cnt) * 4; i++)
 		{
 			int data = 0;
 			get_index = base_buf.find("'", start_index);
@@ -490,22 +459,39 @@ namespace roka::file
 		point += sizeof(int);
 		size += sizeof(int);
 
+		memcpy(&csv->base_size.first, point, sizeof(int));
+		point += sizeof(int);
+		size += sizeof(int);
+
+		memcpy(&csv->base_size.second, point, sizeof(int));
+		point += sizeof(int);
+		size += sizeof(int);
+
 		for (int i = 0; i < (cnt); i++)
 		{
 			//test 용 
 			int x = 0;
 			int y = 0;
+			int sizex = 0;
+			int sizey = 0;
 			memcpy(&x, point, sizeof(int));
 			point += sizeof(int);
 			size += sizeof(int);
 			memcpy(&y, point, sizeof(int));
 			point += sizeof(int);
 			size += sizeof(int);
-
+			memcpy(&sizex, point, sizeof(int));
+			point += sizeof(int);
+			size += sizeof(int);
+			memcpy(&sizey, point, sizeof(int));
+			point += sizeof(int);
+			size += sizeof(int);
 			csv->pos.push_back(std::make_pair(x, y));
+			csv->size.push_back(std::make_pair(sizex, sizey));
 		}
 
 		csv->name = filename;
+		delete filename;
 		_out_str = csv->name;
 		_csvmap.insert(std::make_pair(csv->name, csv));
 		return size;

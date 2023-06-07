@@ -56,7 +56,7 @@ void roka::file::FileSystem::SaveFile(std::string _path)
 
 	FileInfo* info = GetLoadFile();
 
-	std::string save_path = _path + "\\" + info->name;
+	std::string save_path = _path+ "\\" + info->name;
 
 	fout.open(save_path, std::ios::binary);
 	if (fout.is_open())

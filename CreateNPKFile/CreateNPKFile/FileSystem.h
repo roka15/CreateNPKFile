@@ -15,16 +15,19 @@ namespace roka::file
 	{
 		FileInfo() :length(0), buffer(nullptr) {};
 		FileInfo(std::string _name, size_t _len, char* _buffer) :name(_name), length(_len), buffer(_buffer) {};
-		~FileInfo() { delete[] buffer; }
+		~FileInfo() { delete buffer; }
 		std::string name;
 		std::string parent_path;
 		size_t length;
 		char* buffer;
 	};
+
 	struct CSVInfo
 	{
 		std::string name;
+		std::pair<int, int> base_size;
 		std::vector<std::pair<int, int>> pos;
+		std::vector<std::pair<int, int>> size;
 	};
 	struct PackInfo
 	{

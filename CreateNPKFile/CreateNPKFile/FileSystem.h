@@ -1,10 +1,10 @@
 #pragma once
-#include <iostream>
+//#include <iostream>
 #include <queue>
 #include <map>
 #include <filesystem>
 #include <fstream>
-using namespace std;
+
 namespace roka::file
 {
 	//1. 이미지 바이너리 읽고 쓰기 부터 테스트
@@ -31,11 +31,15 @@ namespace roka::file
 	};
 	struct PackInfo
 	{
-		~PackInfo() 
+		~PackInfo()
 		{
-			for (FileInfo* file : binbuf)
+			for (FileInfo*& file : binbuf)
 			{
-				delete file;
+				if (file != nullptr)
+				{
+					delete file;
+					file = nullptr;
+				}
 			}
 		}
 		std::string name;
@@ -50,18 +54,19 @@ namespace roka::file
 	class FileSystem
 	{
 	public:
-		FileSystem():mAllLength(0) {};
+		FileSystem() :mAllLength(0) {};
 		~FileSystem() { Release(); }
 		void LoadFile(std::string _path);
 		void LoadFiles(std::string _path, std::string _format);
 		void SaveFile(std::string _path);
 		void SaveFiles(std::string _path);
-		void SaveFile(std::string _save_path,const FileInfo* _data, std::string name);
+		void SaveFile(std::string _save_path, const FileInfo* _data, std::string name);
 		void SaveFile(std::string _save_path, const FileInfo* _data);
 		FileInfo* GetLoadFile();
+
 		virtual void Release();
 	protected:
-		queue<FileInfo*> mFileBuffers;
+		std::queue<FileInfo*> mFileBuffers;
 		int mAllLength;
 	};
 

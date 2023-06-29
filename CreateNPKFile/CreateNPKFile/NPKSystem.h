@@ -16,8 +16,9 @@ namespace roka::file
 		FileInfo* CreateCSVLineBuffer();
 		size_t ReadCSVLine(const char* buf, std::map<std::string, CSVInfo*>& _csvmap, std::string& _out_str);
 		virtual void Release()override;
+		void Clear();
 	private:
-		queue<FileInfo*> mImagePackBuffers;
+		std::queue<FileInfo*> mImagePackBuffers;
 		FileInfo* mCSVBuffers;
 		int mCsvLine;
 	};

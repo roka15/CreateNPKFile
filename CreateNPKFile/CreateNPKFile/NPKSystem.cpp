@@ -178,6 +178,8 @@ namespace roka::file
 
 		//save
 		SaveFile(_save_path, npkfile);
+
+		delete npkfile;
 	}
 
 	void roka::file::NPKSystem::ReadNPK(std::string _path, std::map<std::string, CSVInfo*>& _csvmap, std::map<std::string, PackInfo*>& _packmap)
@@ -219,7 +221,7 @@ namespace roka::file
 
 	roka::file::FileInfo* roka::file::NPKSystem::CreateCSVLineBuffer()
 	{
-		string temp = mCSVBuffers->buffer;
+		std::string temp = mCSVBuffers->buffer;
 		int start_index = mCsvLine;
 		int linesize = temp.find("\n", start_index);
 		std::string base_buf = mCSVBuffers->buffer;
@@ -352,6 +354,7 @@ namespace roka::file
 		_csvmap.insert(std::make_pair(csv->name, csv));
 		return size;
 	}
+
 	void NPKSystem::Release()
 	{
 		if (mCSVBuffers != nullptr)
@@ -365,6 +368,12 @@ namespace roka::file
 			mImagePackBuffers.pop();
 			delete file;
 		}
+	}
+
+	void NPKSystem::Clear()
+	{
+		Release();
+		FileSystem::Release();
 	}
 
 }

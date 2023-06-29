@@ -3,7 +3,7 @@
 
 void roka::file::FileSystem::LoadFile(std::string _path)
 {
-	std::ifstream is(_path, ios::binary);
+	std::ifstream is(_path, std::ios::binary);
 	int index = _path.rfind("\\");
 
 	std::string file_name = _path.substr(index + 1);
@@ -97,11 +97,9 @@ void roka::file::FileSystem::SaveFile(std::string _save_path, const roka::file::
 		fout.write(_data->buffer, _data->length);
 		fout.close();
 	}
-
-	delete _data;
 }
 
-void roka::file::FileSystem::SaveFile(std::string _save_path, const FileInfo* _data)
+void roka::file::FileSystem::SaveFile(std::string _save_path,const FileInfo* _data)
 {
 	std::ofstream fout;
 	std::string save_path= _save_path;
@@ -115,8 +113,6 @@ void roka::file::FileSystem::SaveFile(std::string _save_path, const FileInfo* _d
 		fout.write(_data->buffer, _data->length);
 		fout.close();
 	}
-
-	delete _data;
 }
 
 roka::file::FileInfo* roka::file::FileSystem::GetLoadFile()
@@ -130,6 +126,7 @@ roka::file::FileInfo* roka::file::FileSystem::GetLoadFile()
 
 	return file;
 }
+
 
 void roka::file::FileSystem::Release()
 {

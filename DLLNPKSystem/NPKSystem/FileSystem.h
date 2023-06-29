@@ -1,10 +1,10 @@
 #pragma once
-#include <iostream>
+
 #include <queue>
 #include <map>
 #include <filesystem>
 #include <fstream>
-using namespace std;
+
 
 #ifdef CREATEDLL_EXPORTS
 #define MYDLL_DECLSPEC __declspec(dllexport)
@@ -14,6 +14,9 @@ using namespace std;
 
 namespace roka::file
 {
+
+	MYDLL_DECLSPEC std::wstring s2ws(const std::string& str);
+	MYDLL_DECLSPEC std::string ws2s(const std::wstring& wstr);
 	//1. 이미지 바이너리 읽고 쓰기 부터 테스트
 	//2. 이미지 버퍼 앞에 text 정보 쓰기
 	//3.filebuffers 내용들 합쳐서 bin 파일로 저장.
@@ -67,7 +70,7 @@ namespace roka::file
 		FileInfo* GetLoadFile();
 		virtual void Release();
 	protected:
-		queue<FileInfo*> mFileBuffers;
+		std::queue<FileInfo*> mFileBuffers;
 		int mAllLength;
 	};
 
@@ -86,8 +89,9 @@ namespace roka::file
 		FileInfo* CreateCSVLineBuffer();
 		size_t ReadCSVLine(const char* buf, std::map<std::string, CSVInfo*>& _csvmap, std::string& _out_str);
 		virtual void Release()override;
+		void Clear();
 	private:
-		queue<FileInfo*> mImagePackBuffers;
+		std::queue<FileInfo*> mImagePackBuffers;
 		FileInfo* mCSVBuffers;
 		int mCsvLine;
 	};

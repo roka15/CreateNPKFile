@@ -4,9 +4,48 @@
 
 namespace roka::file
 {
+
+	MYDLL_DECLSPEC std::wstring s2ws(const std::string& str)
+	{
+		const char* multibyte = str.c_str();
+		wchar_t* unicode = nullptr;
+		size_t len = MultiByteToWideChar(CP_ACP, 0, multibyte, strlen(multibyte), NULL, NULL);
+		if (len == 0)
+		{
+			//실패
+		}
+		else
+		{
+			unicode = new wchar_t[len];
+			MultiByteToWideChar(CP_ACP, 0, multibyte, strlen(multibyte), unicode, len);
+		}
+		std::wstring result = unicode;
+		delete unicode;
+		return result;
+	}
+
+	MYDLL_DECLSPEC std::string ws2s(const std::wstring& wstr)
+	{
+		char* multibyte = nullptr;
+		const wchar_t* unicode = wstr.c_str();
+		size_t len = WideCharToMultiByte(CP_ACP, 0, unicode, -1, NULL, 0, NULL, NULL);
+		if (len == 0)
+		{
+			//실패
+		}
+		else
+		{
+			multibyte = new char[len];
+			WideCharToMultiByte(CP_ACP, 0, unicode, -1, multibyte, len, NULL, NULL);
+		}
+		std::string result = multibyte;
+		delete multibyte;
+		return result;
+	}
+
 	MYDLL_DECLSPEC void FileSystem::LoadFile(std::string _path)
 	{
-		std::ifstream is(_path, ios::binary);
+		std::ifstream is(_path, std::ios::binary);
 		int index = _path.rfind("\\");
 
 		std::string file_name = _path.substr(index + 1);
@@ -98,8 +137,6 @@ namespace roka::file
 			fout.write(_data->buffer, _data->length);
 			fout.close();
 		}
-
-		delete _data;
 	}
 
 	MYDLL_DECLSPEC void FileSystem::SaveFile(std::string _save_path, const FileInfo* _data)
@@ -116,8 +153,6 @@ namespace roka::file
 			fout.write(_data->buffer, _data->length);
 			fout.close();
 		}
-
-		delete _data;
 	}
 
 	MYDLL_DECLSPEC FileInfo* FileSystem::GetLoadFile()
@@ -322,6 +357,8 @@ namespace roka::file
 
 		//save
 		SaveFile(_save_path, npkfile);
+
+		delete npkfile;
 	}
 
 	MYDLL_DECLSPEC void NPKSystem::ReadNPK(std::string _path, std::map<std::string, CSVInfo*>& _csvmap, std::map<std::string, PackInfo*>& _packmap)
@@ -364,7 +401,7 @@ namespace roka::file
 
 	MYDLL_DECLSPEC FileInfo* roka::file::NPKSystem::CreateCSVLineBuffer()
 	{
-		string temp = mCSVBuffers->buffer;
+		std::string temp = mCSVBuffers->buffer;
 		int start_index = mCsvLine;
 		int linesize = temp.find("\n", start_index);
 		std::string base_buf = mCSVBuffers->buffer;
@@ -512,6 +549,11 @@ namespace roka::file
 		}
 	}
 
+	MYDLL_DECLSPEC void NPKSystem::Clear()
+	{
+		Release();
+		FileSystem::Release();
+	}
 
 }
 

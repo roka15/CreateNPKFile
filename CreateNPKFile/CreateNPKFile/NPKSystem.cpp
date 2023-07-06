@@ -55,7 +55,7 @@ namespace roka::file
 		while (mFileBuffers.empty() == false)
 		{
 			FileInfo* file = GetLoadFile();
-		
+
 			std::string filename = file->name;
 			int length = file->length;
 			const char* image_bin = file->buffer;
@@ -188,7 +188,7 @@ namespace roka::file
 		LoadFile(_path);
 		FileInfo* file = GetLoadFile();
 		char* npkbuf = file->buffer;
-		
+
 		char* point = npkbuf;
 
 		//2. buf ÃÑ size , image pack °¹¼ö ÃßÃâ
@@ -216,7 +216,7 @@ namespace roka::file
 		}
 
 		LoadFile(_path);
-		mCSVBuffers= GetLoadFile();
+		mCSVBuffers = GetLoadFile();
 	}
 
 	roka::file::FileInfo* roka::file::NPKSystem::CreateCSVLineBuffer()
@@ -224,9 +224,10 @@ namespace roka::file
 		std::string temp = mCSVBuffers->buffer;
 		int start_index = mCsvLine;
 		int linesize = temp.find("\n", start_index);
+		bool CanvasSameFlag = false;
 		std::string base_buf = mCSVBuffers->buffer;
 		std::string get_data;
-		
+
 		int get_index = 0;
 		std::string file_name;
 		int int_data_cnt = 0;
@@ -239,7 +240,15 @@ namespace roka::file
 		int_data_cnt = atoi(base_buf.substr(start_index, get_index - start_index).c_str());
 		start_index = get_index + 1;
 
-		int bufsize = ((int_data_cnt + 1) * 4) * sizeof(int) + file_name.length();
+		get_index = base_buf.find("'", start_index);
+		CanvasSameFlag = atoi(base_buf.substr(start_index, get_index - start_index).c_str());
+		start_index = get_index + 1;
+
+
+		int ElementCnt = CanvasSameFlag == 0 ? 24 : 16;
+		int PlusCnt = CanvasSameFlag == 0 ? 0 : 2;
+		int bufsize = (int_data_cnt * ElementCnt) 
+			+ (sizeof(int)*(2/*filesize,datacnt*/ + PlusCnt/*same base*/)) + file_name.length()+1/*bool*/;
 		char* buf = new char[bufsize];
 
 		char* point = buf;
@@ -261,22 +270,33 @@ namespace roka::file
 		memcpy(point, &int_data_cnt, sizeof(int));
 		point += sizeof(int);
 
+		memcpy(point, &CanvasSameFlag, 1);
+		point += 1;
+
 		int base_size_x = 0;
 		int base_size_y = 0;
 
-		get_index = base_buf.find("'", start_index);
-		base_size_x = atoi(base_buf.substr(start_index, get_index - start_index).c_str());
-		start_index = get_index + 1;
-		memcpy(point, &base_size_x, sizeof(int));
-		point += sizeof(int);
+		if (CanvasSameFlag == true)
+		{
+			get_index = base_buf.find("'", start_index);
+			base_size_x = atoi(base_buf.substr(start_index, get_index - start_index).c_str());
+			start_index = get_index + 1;
+			memcpy(point, &base_size_x, sizeof(int));
+			point += sizeof(int);
 
-		get_index = base_buf.find("'", start_index);
-		base_size_y = atoi(base_buf.substr(start_index, get_index - start_index).c_str());
-		start_index = get_index + 1;
-		memcpy(point, &base_size_y, sizeof(int));
-		point += sizeof(int);
+			get_index = base_buf.find("'", start_index);
+			base_size_y = atoi(base_buf.substr(start_index, get_index - start_index).c_str());
+			start_index = get_index + 1;
+			memcpy(point, &base_size_y, sizeof(int));
+			point += sizeof(int);
+		}
+		else
+		{
+			int a = 0;
+		}
 
-		for (int i = 0; i < (int_data_cnt) * 4; i++)
+
+		for (int i = 0; i < ((int_data_cnt)*(ElementCnt/4)); i++)
 		{
 			int data = 0;
 			get_index = base_buf.find("'", start_index);
@@ -317,13 +337,26 @@ namespace roka::file
 		point += sizeof(int);
 		size += sizeof(int);
 
-		memcpy(&csv->base_size.first, point,sizeof(int));
-		point += sizeof(int);
-		size += sizeof(int);
+		int sameflag = false;
+		memcpy(&sameflag, point, 1);
+		point += 1;
+		size += 1;
 
-		memcpy(&csv->base_size.second, point, sizeof(int));
-		point += sizeof(int);
-		size += sizeof(int);
+
+		int base_x = 0;
+		int base_y = 0;
+
+		if (sameflag == true)
+		{
+			memcpy(&base_x, point, sizeof(int));
+			point += sizeof(int);
+			size += sizeof(int);
+
+			memcpy(&base_y, point, sizeof(int));
+			point += sizeof(int);
+			size += sizeof(int);
+		}
+
 
 		for (int i = 0; i < (cnt); i++)
 		{
@@ -332,6 +365,18 @@ namespace roka::file
 			int y = 0;
 			int sizex = 0;
 			int sizey = 0;
+			if (sameflag == false)
+			{
+				memcpy(&base_x, point, sizeof(int));
+				point += sizeof(int);
+				size += sizeof(int);
+
+				memcpy(&base_y, point, sizeof(int));
+				point += sizeof(int);
+				size += sizeof(int);
+			}
+			
+			csv->canvas.push_back(std::make_pair(base_x, base_y));
 			memcpy(&x, point, sizeof(int));
 			point += sizeof(int);
 			size += sizeof(int);

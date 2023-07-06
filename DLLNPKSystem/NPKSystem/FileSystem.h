@@ -34,7 +34,7 @@ namespace roka::file
 	struct CSVInfo
 	{
 		std::string name;
-		std::pair<int, int> base_size;
+		std::vector<std::pair<int, int>> canvas;
 		std::vector<std::pair<int, int>> pos;
 		std::vector<std::pair<int, int>> size;
 	};

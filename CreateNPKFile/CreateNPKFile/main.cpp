@@ -79,7 +79,7 @@ int main()
 	//filesystem°ú npksystem ºÐ¸®
 	roka::file::NPKSystem npk;
 
-	npk.CreateNPK("..\\NPKTestFile\\baseskin", "..\\NPKTestFile\\text\\baseskin.txt", ".png", "..\\NPKTestFile\\Result\\baseskin.npk");
+	npk.CreateNPK("..\\NPKTestFile\\Image Group\\baseskin", "..\\NPKTestFile\\text\\baseskin.txt", ".png", "..\\NPKTestFile\\Result\\baseskin.npk");
 	npk.Clear();
 	std::map<std::string, roka::file::CSVInfo*> csvmap;
 	std::map<std::string, roka::file::PackInfo*> packmap;

@@ -1,5 +1,8 @@
 #pragma once
 #include "FileSystem.h"
+#define CANVAS_SAME 1
+#define CANVAS_DIFF 0
+
 namespace roka::file
 {
 	class NPKSystem:public FileSystem

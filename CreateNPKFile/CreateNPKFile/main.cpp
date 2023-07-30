@@ -75,26 +75,17 @@ int main()
 	roka::file::FileSystem::SavePacks("..\\NPKTestFile\\Result\\myTest",packmap);
 	*/
 	//roka::file::FileSystem::Release();
-
-	//filesystem과 npksystem 분리
 	roka::file::NPKSystem npk;
-
-	npk.CreateNPK("..\\NPKTestFile\\Image Group\\baseskin", "..\\NPKTestFile\\text\\baseskin.txt", ".png", "..\\NPKTestFile\\Result\\baseskin.npk");
+#pragma region png npk
+	//filesystem과 npksystem 분리
+	
+   
+	npk.CreateNPK("..\\NPKTestFile\\Image Group\\HudUI", "..\\NPKTestFile\\text\\hudUI.txt", ".png", "..\\NPKTestFile\\Result\\HudUI.npk");
 	npk.Clear();
 	std::map<std::string, roka::file::CSVInfo*> csvmap;
 	std::map<std::string, roka::file::PackInfo*> packmap;
-	/*npk.ReadNPK("..\\NPKTestFile\\Result\\arsmagna.npk", csvmap, packmap);
-	for (auto item : csvmap)
-	{
-		delete (item.second);
-	}
-	for (auto item : packmap)
-	{
-		delete (item.second);
-	}
-	csvmap.clear();
-	packmap.clear();*/
-	npk.ReadNPK("..\\NPKTestFile\\Result\\baseskin.npk", csvmap, packmap);
+
+	npk.ReadNPK("..\\NPKTestFile\\Result\\HudUI.npk", csvmap, packmap);
 	npk.SavePacks("..\\NPKTestFile\\Result\\myTest", packmap);
 	for (auto& item : csvmap)
 	{
@@ -104,6 +95,29 @@ int main()
 	{
 		delete (item.second);
 	}
+#pragma endregion
+#pragma region bmp npk
 
+	/*npk.CreateNPK("..\\NPKTestFile\\png2bmpImages\\Gate", "..\\NPKTestFile\\text\\gateanitest.txt", ".bmp", "..\\NPKTestFile\\Result\\bmp_npk\\gateanitest.npk");
+	npk.Clear();
+	std::map<std::string, roka::file::CSVInfo*> csvmap;
+	std::map<std::string, roka::file::PackInfo*> packmap;
+	
+	npk.ReadNPK("..\\NPKTestFile\\Result\\bmp_npk\\gateanitest.npk", csvmap, packmap);
+	{
+		roka::file::PackInfo pack = {};
+		pack.binbuf.push_back(packmap["seriagate_dooreffect.img"]->binbuf[0]);
+
+	}
+	npk.SavePacks("..\\NPKTestFile\\Result\\bmpTest", packmap);
+	for (auto& item : csvmap)
+	{
+		delete (item.second);
+	}
+	for (auto& item : packmap)
+	{
+		delete (item.second);
+	}*/
+#pragma endregion
 	//npk.SavePacks("..\\NPKTestFile\\Result\\myTest", packmap);
 }

@@ -14,6 +14,14 @@ namespace roka::file
 	struct FileInfo
 	{
 		FileInfo() :length(0), buffer(nullptr) {};
+		FileInfo(const FileInfo& ref)
+		{
+			name = ref.name;
+			parent_path = ref.parent_path;
+			length = ref.length;
+			buffer = new char[length];
+			memcpy(buffer, ref.buffer, length);
+		}
 		FileInfo(std::string _name, size_t _len, char* _buffer) :name(_name), length(_len), buffer(_buffer) {};
 		~FileInfo() { delete buffer; }
 		std::string name;
@@ -31,6 +39,17 @@ namespace roka::file
 	};
 	struct PackInfo
 	{
+		PackInfo() {}
+		PackInfo(const PackInfo& ref)
+		{
+			name = ref.name;
+			std::vector<FileInfo*> vec = ref.binbuf;
+			for (int i = 0; i < vec.size(); i++)
+			{
+				FileInfo* file = new FileInfo(*(vec[i]));
+				binbuf.push_back(file);
+			}
+		}
 		~PackInfo()
 		{
 			for (FileInfo*& file : binbuf)

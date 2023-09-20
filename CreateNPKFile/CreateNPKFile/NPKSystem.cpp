@@ -23,6 +23,86 @@ namespace roka::file
 		}
 	}
 
+	void NPKSystem::SaveCsvs(std::string _save_path, std::map<std::string, CSVInfo*> _csv)
+	{
+		std::string result_path = _save_path;
+		FileInfo* file = new FileInfo();
+		std::string txt;
+		char* num2str = new char[255];
+		for (auto& csv : _csv)
+		{
+			 int size = csv.second->canvas.size();
+			 bool sameFlag = true;
+			 for (int i = 1; i < size; i++)
+			 {
+				 if (csv.second->canvas[0].first != csv.second->canvas[i].first
+					 && csv.second->canvas[0].second != csv.second->canvas[i].second)
+					 sameFlag = false;
+			 }
+			 txt+=csv.first;
+			 txt += '\'';
+		
+			 sprintf(num2str, "%d", size);
+			 txt += num2str;
+			 memset(num2str,'\0', 255);
+			 txt += '\'';
+			 sprintf(num2str, "%d",(int)sameFlag);
+			 txt += num2str;
+			 memset(num2str, '\0', 255);
+			 txt += '\'';
+			 if (sameFlag == true)
+			 {
+				 sprintf(num2str, "%d", csv.second->canvas[0].first);
+				 txt += num2str;
+				 memset(num2str, '\0', 255);
+				 txt += '\'';
+				 sprintf(num2str, "%d", csv.second->canvas[0].second);
+				 txt += num2str;
+				 memset(num2str, '\0', 255); 
+				 txt += '\'';
+			 }
+			 for (int i = 0; i < size; i++)
+			 {
+				 if (sameFlag == false)
+				 {
+					 sprintf(num2str, "%d", csv.second->canvas[i].first);
+					 txt += num2str;
+					 memset(num2str, '\0', 255);
+					 txt += '\'';
+					 sprintf(num2str, "%d", csv.second->canvas[0].second);
+					 txt += num2str;
+					 memset(num2str, '\0', 255);
+					 txt += '\'';
+				 }
+				 sprintf(num2str, "%d", csv.second->pos[i].first);
+				 txt += num2str;
+				 memset(num2str, '\0', 255);
+				 txt += '\'';
+				 sprintf(num2str, "%d", csv.second->pos[i].second);
+				 txt += num2str;
+				 memset(num2str, '\0', 255);
+				 txt += '\'';
+				 sprintf(num2str, "%d", csv.second->size[i].first);
+				 txt += num2str;
+				 memset(num2str, '\0', 255);
+				 txt += '\'';
+				 sprintf(num2str, "%d", csv.second->size[i].second);
+				 txt += num2str;
+				 memset(num2str, '\0', 255);
+				 if(i!=size-1)
+					 txt += '\'';
+			 }
+			 txt += '\n';
+		}
+		delete []num2str;
+		file->buffer = new char[txt.size()+1];
+		memset(file->buffer, '\0', txt.size());
+		strcpy(file->buffer, txt.c_str());
+		file->length = txt.size();
+		SaveFile(result_path, file);
+		delete file;
+	}
+
 	const roka::file::FileInfo* roka::file::NPKSystem::CreateImagePackage(std::string _read_path, std::string _road_format)
 	{
 		LoadFiles(_read_path, _road_format);
@@ -118,7 +198,7 @@ namespace roka::file
 			info->buffer = image_buf;
 			info->name = filename;
 
-			delete filename;
+			delete []filename;
 
 			pack_info->binbuf.push_back(info);
 		}
@@ -395,7 +475,7 @@ namespace roka::file
 		}
 
 		csv->name = filename;
-		delete filename;
+		delete []filename;
 		_out_str = csv->name;
 		_csvmap.insert(std::make_pair(csv->name, csv));
 		return size;

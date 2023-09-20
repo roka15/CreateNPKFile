@@ -80,13 +80,14 @@ int main()
 	//filesystem°ú npksystem ºÐ¸®
 	
    
-	npk.CreateNPK("..\\NPKTestFile\\Image Group\\HudUI", "..\\NPKTestFile\\text\\hudUI.txt", ".png", "..\\NPKTestFile\\Result\\HudUI.npk");
-	npk.Clear();
+	npk.CreateNPK("..\\NPKTestFile\\Image Group\\homonculouse", "..\\NPKTestFile\\text\\homonculouse.txt", ".png", "..\\NPKTestFile\\Result\\homonculouse.npk");
+	//npk.Clear();
 	std::map<std::string, roka::file::CSVInfo*> csvmap;
 	std::map<std::string, roka::file::PackInfo*> packmap;
 
-	npk.ReadNPK("..\\NPKTestFile\\Result\\HudUI.npk", csvmap, packmap);
+	npk.ReadNPK("..\\NPKTestFile\\Result\\homonculouse.npk", csvmap, packmap);
 	npk.SavePacks("..\\NPKTestFile\\Result\\myTest", packmap);
+	//npk.SaveCsvs("..\\NPKTestFile\\Result\\homonculouse.txt", csvmap);
 	for (auto& item : csvmap)
 	{
 		delete (item.second);

@@ -11,6 +11,7 @@ namespace roka::file
 		NPKSystem() :mCsvLine(0), mCSVBuffers(nullptr) {};
 		virtual ~NPKSystem() { Release(); }
 		void SavePacks(std::string _save_path, std::map<std::string, PackInfo*> _pack);
+		void SaveCsvs(std::string _save_path, std::map<std::string, CSVInfo*> _csv);
 		const FileInfo* CreateImagePackage(std::string _read_path, std::string _road_format);
 		size_t ReadImagePackage(const char* _buf, std::map<std::string, CSVInfo*>& _csvmap, std::map<std::string, PackInfo*>& _packmap);
 		void CreateNPK(std::string _image_path, std::string _txt_path, std::string _format, std::string _save_path);

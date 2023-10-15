@@ -182,7 +182,8 @@ namespace roka::file
 namespace roka::file
 {
 
-	MYDLL_DECLSPEC void NPKSystem::SavePacks(std::string _save_path, std::map<std::string, PackInfo*> _pack)
+
+	MYDLL_DECLSPEC void roka::file::NPKSystem::SavePacks(std::string _save_path, std::map<std::string, PackInfo*> _pack)
 	{
 		for (auto& pack : _pack)
 		{
@@ -202,7 +203,87 @@ namespace roka::file
 		}
 	}
 
-	MYDLL_DECLSPEC const FileInfo* NPKSystem::CreateImagePackage(std::string _read_path, std::string _road_format)
+	MYDLL_DECLSPEC void NPKSystem::SaveCsvs(std::string _save_path, std::map<std::string, CSVInfo*> _csv)
+	{
+		std::string result_path = _save_path;
+		FileInfo* file = new FileInfo();
+		std::string txt;
+		char* num2str = new char[255];
+		for (auto& csv : _csv)
+		{
+			int size = csv.second->canvas.size();
+			bool sameFlag = true;
+			for (int i = 1; i < size; i++)
+			{
+				if (csv.second->canvas[0].first != csv.second->canvas[i].first
+					&& csv.second->canvas[0].second != csv.second->canvas[i].second)
+					sameFlag = false;
+			}
+			txt += csv.first;
+			txt += '\'';
+
+			sprintf(num2str, "%d", size);
+			txt += num2str;
+			memset(num2str, '\0', 255);
+			txt += '\'';
+			sprintf(num2str, "%d", (int)sameFlag);
+			txt += num2str;
+			memset(num2str, '\0', 255);
+			txt += '\'';
+			if (sameFlag == true)
+			{
+				sprintf(num2str, "%d", csv.second->canvas[0].first);
+				txt += num2str;
+				memset(num2str, '\0', 255);
+				txt += '\'';
+				sprintf(num2str, "%d", csv.second->canvas[0].second);
+				txt += num2str;
+				memset(num2str, '\0', 255);
+				txt += '\'';
+			}
+			for (int i = 0; i < size; i++)
+			{
+				if (sameFlag == false)
+				{
+					sprintf(num2str, "%d", csv.second->canvas[i].first);
+					txt += num2str;
+					memset(num2str, '\0', 255);
+					txt += '\'';
+					sprintf(num2str, "%d", csv.second->canvas[0].second);
+					txt += num2str;
+					memset(num2str, '\0', 255);
+					txt += '\'';
+				}
+				sprintf(num2str, "%d", csv.second->pos[i].first);
+				txt += num2str;
+				memset(num2str, '\0', 255);
+				txt += '\'';
+				sprintf(num2str, "%d", csv.second->pos[i].second);
+				txt += num2str;
+				memset(num2str, '\0', 255);
+				txt += '\'';
+				sprintf(num2str, "%d", csv.second->size[i].first);
+				txt += num2str;
+				memset(num2str, '\0', 255);
+				txt += '\'';
+				sprintf(num2str, "%d", csv.second->size[i].second);
+				txt += num2str;
+				memset(num2str, '\0', 255);
+				if (i != size - 1)
+					txt += '\'';
+			}
+			txt += '\n';
+		}
+		delete[]num2str;
+		file->buffer = new char[txt.size() + 1];
+		memset(file->buffer, '\0', txt.size());
+		strcpy(file->buffer, txt.c_str());
+		file->length = txt.size();
+		SaveFile(result_path, file);
+		delete file;
+	}
+
+	MYDLL_DECLSPEC const roka::file::FileInfo* roka::file::NPKSystem::CreateImagePackage(std::string _read_path, std::string _road_format)
 	{
 		LoadFiles(_read_path, _road_format);
 
@@ -257,7 +338,7 @@ namespace roka::file
 		return info;
 	}
 
-	MYDLL_DECLSPEC size_t NPKSystem::ReadImagePackage(const char* _buf, std::map<std::string, CSVInfo*>& _csvmap, std::map<std::string, PackInfo*>& _packmap)
+	MYDLL_DECLSPEC size_t roka::file::NPKSystem::ReadImagePackage(const char* _buf, std::map<std::string, CSVInfo*>& _csvmap, std::map<std::string, PackInfo*>& _packmap)
 	{
 		const char* buf = _buf;
 		const char* point = buf;
@@ -297,7 +378,7 @@ namespace roka::file
 			info->buffer = image_buf;
 			info->name = filename;
 
-			delete filename;
+			delete[]filename;
 
 			pack_info->binbuf.push_back(info);
 		}
@@ -307,7 +388,7 @@ namespace roka::file
 		return filesize;
 	}
 
-	MYDLL_DECLSPEC void NPKSystem::CreateNPK(std::string _image_path, std::string _txt_path, std::string _format, std::string _save_path)
+	MYDLL_DECLSPEC void roka::file::NPKSystem::CreateNPK(std::string _image_path, std::string _txt_path, std::string _format, std::string _save_path)
 	{
 		size_t npk_size = 0;
 		OpenCSV(_txt_path);
@@ -362,7 +443,7 @@ namespace roka::file
 		delete npkfile;
 	}
 
-	MYDLL_DECLSPEC void NPKSystem::ReadNPK(std::string _path, std::map<std::string, CSVInfo*>& _csvmap, std::map<std::string, PackInfo*>& _packmap)
+	MYDLL_DECLSPEC void roka::file::NPKSystem::ReadNPK(std::string _path, std::map<std::string, CSVInfo*>& _csvmap, std::map<std::string, PackInfo*>& _packmap)
 	{
 		//1. npk buf 읽어오기
 		LoadFile(_path);
@@ -388,7 +469,7 @@ namespace roka::file
 		delete file;
 	}
 
-	MYDLL_DECLSPEC void NPKSystem::OpenCSV(std::string _path)
+	MYDLL_DECLSPEC void roka::file::NPKSystem::OpenCSV(std::string _path)
 	{
 		if (mCSVBuffers != nullptr)
 		{
@@ -399,7 +480,7 @@ namespace roka::file
 		mCSVBuffers = GetLoadFile();
 	}
 
-	MYDLL_DECLSPEC FileInfo* NPKSystem::CreateCSVLineBuffer()
+	MYDLL_DECLSPEC roka::file::FileInfo* roka::file::NPKSystem::CreateCSVLineBuffer()
 	{
 		std::string temp = mCSVBuffers->buffer;
 		int start_index = mCsvLine;
@@ -492,7 +573,7 @@ namespace roka::file
 
 
 
-	MYDLL_DECLSPEC size_t NPKSystem::ReadCSVLine(const char* buf, std::map<std::string, CSVInfo*>& _csvmap, std::string& _out_str)
+	MYDLL_DECLSPEC size_t roka::file::NPKSystem::ReadCSVLine(const char* buf, std::map<std::string, CSVInfo*>& _csvmap, std::string& _out_str)
 	{
 		CSVInfo* csv = new CSVInfo();
 
@@ -574,7 +655,7 @@ namespace roka::file
 		}
 
 		csv->name = filename;
-		delete filename;
+		delete[]filename;
 		_out_str = csv->name;
 		_csvmap.insert(std::make_pair(csv->name, csv));
 		return size;
